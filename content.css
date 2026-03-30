@@ -1,0 +1,220 @@
+/* ── フローティングボタン ── */
+#gemini-logger-search-btn,
+#gemini-logger-btn,
+#gemini-logger-zip-btn {
+  position: fixed;
+  right: 16px;
+  z-index: 99999;
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 8px 10px;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: padding 0.2s ease, background 0.2s, transform 0.1s, box-shadow 0.2s;
+  user-select: none;
+}
+
+#gemini-logger-search-btn { top: 120px; background: #7986cb; }
+#gemini-logger-btn        { top: 166px; background: #1a73e8; }
+#gemini-logger-zip-btn    { top: 212px; background: #188038; }
+
+.gcl-label {
+  font-size: 13px;
+  font-family: 'Google Sans', sans-serif;
+  font-weight: 500;
+  max-width: 0;
+  overflow: hidden;
+  margin-left: 0;
+  transition: max-width 0.25s ease, margin-left 0.25s ease;
+}
+#gemini-logger-search-btn:hover .gcl-label,
+#gemini-logger-btn:hover .gcl-label,
+#gemini-logger-zip-btn:hover .gcl-label {
+  max-width: 120px;
+  margin-left: 6px;
+}
+
+#gemini-logger-search-btn:hover { background: #5c6bc0; box-shadow: 0 3px 10px rgba(0,0,0,0.35); }
+#gemini-logger-btn:hover        { background: #1557b0; box-shadow: 0 3px 10px rgba(0,0,0,0.35); }
+#gemini-logger-zip-btn:hover    { background: #0d652d; box-shadow: 0 3px 10px rgba(0,0,0,0.35); }
+
+#gemini-logger-search-btn:active,
+#gemini-logger-btn:active,
+#gemini-logger-zip-btn:active { transform: scale(0.96); }
+
+#gemini-logger-btn:disabled,
+#gemini-logger-zip-btn:disabled { cursor: not-allowed; opacity: 0.6; }
+
+#gemini-logger-btn.success,
+#gemini-logger-zip-btn.success  { background: #188038; }
+#gemini-logger-btn.error,
+#gemini-logger-zip-btn.error    { background: #c5221f; }
+
+#gemini-logger-version {
+  position: fixed;
+  top: 254px;
+  right: 20px;
+  z-index: 99999;
+  font-size: 10px;
+  color: rgba(0,0,0,0.3);
+  font-family: monospace;
+  pointer-events: none;
+}
+
+/* ── 検索パネル ── */
+#gemini-logger-panel {
+  position: fixed;
+  top: 80px;
+  right: 70px;
+  width: 360px;
+  max-height: 80vh;
+  z-index: 99998;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Google Sans', sans-serif;
+  font-size: 13px;
+}
+
+#gcl-header {
+  background: #7986cb;
+  color: #fff;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+#gcl-close {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+#gcl-search-row {
+  padding: 8px 10px;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
+}
+#gcl-input {
+  width: 100%;
+  padding: 7px 12px;
+  border: 1.5px solid #dadce0;
+  border-radius: 20px;
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+}
+#gcl-input:focus { border-color: #7986cb; }
+
+#gcl-info {
+  padding: 4px 12px;
+  font-size: 11px;
+  color: #5f6368;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+#gcl-back {
+  display: none;
+  background: none;
+  border: none;
+  color: #7986cb;
+  cursor: pointer;
+  padding: 6px 12px;
+  font-size: 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+#gcl-list-view { overflow-y: auto; flex: 1; }
+
+.gcl-item {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.gcl-item:hover { background: #f3eeff; }
+
+.gcl-item-title {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.gcl-item-meta { font-size: 11px; color: #5f6368; margin-bottom: 2px; }
+.gcl-item-snippet {
+  font-size: 12px;
+  color: #3c4043;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.gcl-empty {
+  padding: 32px;
+  text-align: center;
+  color: #888;
+}
+
+/* 詳細ビュー */
+#gcl-detail {
+  overflow-y: auto;
+  flex: 1;
+  padding: 10px 12px;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+}
+#gcl-detail-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: #202124;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 6px;
+  flex-shrink: 0;
+}
+#gcl-detail-body { display: flex; flex-direction: column; gap: 10px; }
+
+.gcl-turn { border-top: 1px solid #f0f0f0; padding-top: 8px; }
+.gcl-turn-role {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 3px;
+}
+.gcl-turn-user .gcl-turn-role  { color: #1a73e8; }
+.gcl-turn-model .gcl-turn-role { color: #188038; }
+.gcl-turn-content {
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+mark {
+  background: #fdd835;
+  border-radius: 2px;
+  padding: 0 1px;
+  color: inherit;
+}
