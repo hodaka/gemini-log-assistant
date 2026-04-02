@@ -14,7 +14,7 @@ Geminiの会話ログを保存・検索・ZIP一括エクスポートできるCh
 ## インストール
 
 ### Chrome Web Store（推奨）
-*(審査中)*
+[Gemini Chat Logger](https://chromewebstore.google.com/detail/faalgjigfkchegchcgepoalebnahpjlh) をChromeに追加
 
 ### 手動インストール
 1. このリポジトリをダウンロード（Code → Download ZIP）
