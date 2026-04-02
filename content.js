@@ -4,7 +4,7 @@ const BUTTON_ID      = 'gemini-logger-btn';
 const ZIP_BUTTON_ID  = 'gemini-logger-zip-btn';
 const SEARCH_BTN_ID  = 'gemini-logger-search-btn';
 const PANEL_ID       = 'gemini-logger-panel';
-const VERSION        = 'v2.2';
+const VERSION        = 'v2.3';
 
 // ── Shift-JISエンコーダ ───────────────────────────────────────────────────
 // TextDecoder('shift-jis')を逆引きして変換マップを構築する。
@@ -211,12 +211,17 @@ function safeFilename(title) {
   return title.replace(/[\\/:*?"<>|\r\n]/g, '_').replace(/\s+/g, '_').slice(0, 50);
 }
 
+function getChatTitle() {
+  return document.querySelector('[data-test-id="conversation-title"]')?.innerText.trim()
+      || document.title.replace(/\s*[|\-–]\s*.*$/i, '').trim()
+      || '無題の会話';
+}
+
 function makeEntry(turns, url) {
-  const now   = new Date();
-  const first = turns.find(t => t.role === 'user');
+  const now = new Date();
   return {
     id:    `log_${now.getTime()}`,
-    title: first ? first.content.slice(0, 60).replace(/\n/g, ' ') : '無題の会話',
+    title: getChatTitle(),
     url,
     date:  now.toISOString(),
     turns
@@ -261,10 +266,12 @@ function autoSave() {
   chrome.storage.local.get({ logs: [] }, data => {
     const logs     = data.logs;
     const existing = logs.find(l => l.url === location.href);
-    const merged   = mergeWithExisting(existing?.turns, turns);
+    const merged     = mergeWithExisting(existing?.turns, turns);
+    const titleNow   = getChatTitle();
+    const titleChanged = existing && existing.title !== titleNow;
 
-    // マージ後も増加がなければスキップ
-    if (merged.length <= (existing?.turns.length ?? 0)) return;
+    // ターン数もタイトルも変化なければスキップ
+    if (merged.length <= (existing?.turns.length ?? 0) && !titleChanged) return;
 
     const entry   = makeEntry(merged, location.href);
     if (existing) entry.id = existing.id; // 更新時はidを引き継ぐ（詳細ビューの参照を維持）
