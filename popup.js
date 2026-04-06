@@ -25,10 +25,9 @@ function formatDate(isoStr) {
 
 function renderList() {
   const listEl = document.getElementById('log-list');
-  const resultInfo = document.getElementById('result-info');
 
   document.getElementById('total-count').textContent = `${allLogs.length}件`;
-  resultInfo.textContent = `保存済み: ${allLogs.length}件`;
+  document.getElementById('log-count-info').textContent = `保存済み: ${allLogs.length}件`;
 
   if (allLogs.length === 0) {
     listEl.innerHTML = `
