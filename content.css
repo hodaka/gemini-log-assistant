@@ -176,6 +176,25 @@
   color: #888;
 }
 
+.gcl-item-actions {
+  display: none;
+  gap: 6px;
+  margin-top: 6px;
+}
+.gcl-item:hover .gcl-item-actions { display: flex; }
+.gcl-item-actions button {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid;
+  cursor: pointer;
+  background: none;
+}
+.gcl-btn-dl  { color: #7986cb; border-color: #7986cb; }
+.gcl-btn-dl:hover  { background: #f3eeff; }
+.gcl-btn-del { color: #c5221f; border-color: #c5221f; }
+.gcl-btn-del:hover { background: #fce8e6; }
+
 /* 詳細ビュー */
 #gcl-detail {
   overflow-y: auto;
