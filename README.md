@@ -6,9 +6,9 @@ Geminiの会話ログを保存・検索・ZIP一括エクスポートできるCh
 
 ## 機能
 
-- **💾 ログを保存** — 表示中のチャットをテキストファイルでダウンロード＆ローカルに蓄積
-- **📦 全ログをZIP** — 保存済みの全会話を一括ZIPエクスポート（Windowsで文字化けしないShift-JISファイル名）
-- **🔍 ログ検索** — ページ内パネルで過去の会話を全文検索・ハイライト表示
+- **💾➜📄 ログを保存** — 表示中のチャットをテキストファイルでダウンロード＆ローカルに蓄積
+- **💾➜📦 全ログをZIP** — 保存済みの全会話を一括ZIPエクスポート（Windowsで文字化けしないShift-JISファイル名）
+- **🔍 ログ検索** — ページ内パネルで過去の会話を全文検索・表示・DL・削除
 - **自動保存** — チャットを開くたびに自動でストレージに蓄積
 
 ## インストール
@@ -26,9 +26,9 @@ Geminiの会話ログを保存・検索・ZIP一括エクスポートできるCh
 ## 使い方
 
 1. [Gemini](https://gemini.google.com) を開くと右側にボタンが表示されます
-2. **💾 ログを保存** — 現在のチャットを保存
-3. **📦 全ログをZIP** — 蓄積した全ログをZIPでダウンロード
-4. **🔍 ログ検索** — キーワードで過去の会話を検索
+2. **💾➜📄 ログを保存** — 現在のチャットを保存
+3. **💾➜📦 全ログをZIP** — 蓄積した全ログをZIPでダウンロード
+4. **🔍 ログ検索** — キーワードで過去の会話を検索・管理
 
 ---
 
@@ -57,7 +57,7 @@ Geminiの会話ログを保存・検索・ZIP一括エクスポートできるCh
 
 ### データの削除
 
-- 拡張機能のポップアップ画面から「すべて削除」でいつでも全データを削除できます
+- 🔍ログ検索パネルから個別削除が可能です
 - 拡張機能をアンインストールすると、すべてのデータが削除されます
 
 ### 必要な権限
@@ -95,7 +95,7 @@ Stored data is used solely for:
 
 #### Data Deletion
 
-- Users can delete all data at any time via the "Delete All" button in the extension popup
+- Users can delete individual logs via the 🔍 search panel
 - Uninstalling the extension removes all stored data
 
 #### Permissions
@@ -105,6 +105,25 @@ Stored data is used solely for:
 | `storage` | To save conversation logs locally in the browser |
 | `downloads` | To download text and ZIP files |
 | `host_permissions: gemini.google.com` | To display buttons on Gemini and read conversation content |
+
+---
+
+## 更新履歴
+
+### v2.6
+- ボタンアイコンを💾➜📄・💾➜📦に変更し、操作の意味を直感的に
+
+### v2.5
+- ポップアップを廃止、全機能を🔍ページ内パネルに一本化
+
+### v2.4
+- 🔍パネルに個別削除・DL・チャットへのジャンプボタンを追加
+- ログ一覧の日付に年を追加
+
+### v2.3
+- ログタイトルをチャットタイトルから自動取得
+- ターン仮想化によるログ欠損をインクリメンタルマージで修正
+- 自動保存がターン追加時に更新されない問題を修正
 
 ---
 
