@@ -4,7 +4,7 @@ const BUTTON_ID      = 'gemini-logger-btn';
 const ZIP_BUTTON_ID  = 'gemini-logger-zip-btn';
 const SEARCH_BTN_ID  = 'gemini-logger-search-btn';
 const PANEL_ID       = 'gemini-logger-panel';
-const VERSION        = 'v2.0';
+const VERSION        = 'v2.3';
 
 // ── Shift-JISエンコーダ ───────────────────────────────────────────────────
 // TextDecoder('shift-jis')を逆引きして変換マップを構築する。
@@ -211,16 +211,46 @@ function safeFilename(title) {
   return title.replace(/[\\/:*?"<>|\r\n]/g, '_').replace(/\s+/g, '_').slice(0, 50);
 }
 
+function getChatTitle() {
+  return document.querySelector('[data-test-id="conversation-title"]')?.innerText.trim()
+      || document.title.replace(/\s*[|\-–]\s*.*$/i, '').trim()
+      || '無題の会話';
+}
+
 function makeEntry(turns, url) {
-  const now   = new Date();
-  const first = turns.find(t => t.role === 'user');
+  const now = new Date();
   return {
     id:    `log_${now.getTime()}`,
-    title: first ? first.content.slice(0, 60).replace(/\n/g, ' ') : '無題の会話',
+    title: getChatTitle(),
     url,
     date:  now.toISOString(),
     turns
   };
+}
+
+// ── インクリメンタルマージ ────────────────────────────────────────────────
+// Geminiのターン仮想化対策: 既存の保存済みターンと新規スクレイプをマージする。
+// DOMから消えた古いターンを保持しつつ、新しいターンのみ追記する。
+
+function mergeWithExisting(existingTurns, newTurns) {
+  if (!existingTurns || existingTurns.length === 0) return newTurns;
+  if (!newTurns || newTurns.length === 0) return existingTurns;
+
+  // DOMに全ターンが揃っている場合（仮想化なし）はそのまま使う
+  if (newTurns.length >= existingTurns.length) return newTurns;
+
+  // 仮想化あり: 既存の末尾ターンをDOM上で探し、以降のターンを追記
+  const last = existingTurns[existingTurns.length - 1];
+  for (let i = newTurns.length - 1; i >= 0; i--) {
+    if (newTurns[i].role === last.role &&
+        newTurns[i].content.slice(0, 80) === last.content.slice(0, 80)) {
+      const additional = newTurns.slice(i + 1);
+      return additional.length > 0 ? [...existingTurns, ...additional] : existingTurns;
+    }
+  }
+
+  // 末尾が見つからない場合は安全側に倒して既存を保持
+  return existingTurns;
 }
 
 // ── 自動保存（チャットページを開いたとき） ───────────────────────────────
@@ -234,15 +264,20 @@ function autoSave() {
   if (!turns.length) return;
 
   chrome.storage.local.get({ logs: [] }, data => {
-    const logs    = data.logs;
+    const logs     = data.logs;
     const existing = logs.find(l => l.url === location.href);
-    // すでに同じかそれ以上のターン数が保存済みならスキップ
-    if (existing && existing.turns.length >= turns.length) return;
+    const merged     = mergeWithExisting(existing?.turns, turns);
+    const titleNow   = getChatTitle();
+    const titleChanged = existing && existing.title !== titleNow;
 
-    const entry   = makeEntry(turns, location.href);
+    // ターン数もタイトルも変化なければスキップ
+    if (merged.length <= (existing?.turns.length ?? 0) && !titleChanged) return;
+
+    const entry   = makeEntry(merged, location.href);
+    if (existing) entry.id = existing.id; // 更新時はidを引き継ぐ（詳細ビューの参照を維持）
     const updated = [entry, ...logs.filter(l => l.url !== location.href)].slice(0, 200);
     chrome.storage.local.set({ logs: updated });
-    console.log('[Gemini Logger] 自動保存:', entry.title);
+    console.log('[Gemini Logger] 自動保存:', entry.title, `(${merged.length}ターン)`);
   });
 }
 
@@ -399,6 +434,7 @@ function openDetail(id, logs, q) {
       <div class="gcl-turn-content">${highlight(t.content, q)}</div>
     </div>`).join('');
 
+  detail.dataset.currentId = id;
   document.getElementById('gcl-list-view').style.display = 'none';
   detail.style.display = 'flex';
   back.style.display   = 'block';
@@ -460,9 +496,16 @@ function createSearchPanel() {
     if (area === 'local' && changes.logs) {
       allLogs = changes.logs.newValue || [];
       renderPanel(allLogs, query);
+      // 詳細ビューが開いていたら内容も更新する
+      const detail = document.getElementById('gcl-detail');
+      const currentId = detail?.dataset.currentId;
+      if (detail?.style.display !== 'none' && currentId) {
+        openDetail(currentId, allLogs, query);
+      }
     }
   });
 
+  panel._reload = load;
   load();
 }
 
@@ -471,6 +514,7 @@ function toggleSearchPanel() {
   if (!panel) { createSearchPanel(); return; }
   panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
   if (panel.style.display === 'flex') {
+    panel._reload?.(); // 開くたびに最新データを取得
     document.getElementById('gcl-input')?.focus();
   }
 }
@@ -520,6 +564,12 @@ function init() {
 
   // 初回: ページ読み込み完了後に自動保存
   setTimeout(autoSave, 2000);
+
+  // ターンが追加されたときに保存を更新するためポーリング（10秒ごと）
+  // 拡張機能が再読み込みされてコンテキストが無効になったらインターバルを停止する
+  const _pollTimer = setInterval(() => {
+    try { autoSave(); } catch (e) { clearInterval(_pollTimer); }
+  }, 10000);
 
   let lastUrl = location.href;
   new MutationObserver(() => {
