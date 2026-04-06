@@ -178,10 +178,12 @@
 
 .gcl-item-actions {
   display: none;
+  flex-wrap: wrap;
   gap: 6px;
   margin-top: 6px;
 }
 .gcl-item:hover .gcl-item-actions { display: flex; }
+.gcl-actions-break { width: 100%; margin: 0; }
 .gcl-item-actions button {
   font-size: 11px;
   padding: 3px 10px;
@@ -190,10 +192,23 @@
   cursor: pointer;
   background: none;
 }
+.gcl-btn-show { color: #5f6368; border-color: #dadce0; }
+.gcl-btn-show:hover { background: #f1f3f4; }
+.gcl-btn-goto { color: #188038; border-color: #188038; }
+.gcl-btn-goto:hover { background: #e6f4ea; }
+.gcl-btn-open { color: #188038; border-color: #188038; }
+.gcl-btn-open:hover { background: #e6f4ea; }
 .gcl-btn-dl  { color: #7986cb; border-color: #7986cb; }
 .gcl-btn-dl:hover  { background: #f3eeff; }
 .gcl-btn-del { color: #c5221f; border-color: #c5221f; }
 .gcl-btn-del:hover { background: #fce8e6; }
+
+.gcl-item-actions.gcl-confirming { display: flex; align-items: center; }
+.gcl-confirm-label { font-size: 11px; color: #c5221f; margin-right: 4px; }
+.gcl-btn-ok  { color: #c5221f; border-color: #c5221f; }
+.gcl-btn-ok:hover  { background: #fce8e6; }
+.gcl-btn-cancel { color: #5f6368; border-color: #dadce0; }
+.gcl-btn-cancel:hover { background: #f1f3f4; }
 
 /* 詳細ビュー */
 #gcl-detail {

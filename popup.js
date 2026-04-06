@@ -52,7 +52,7 @@ function renderList() {
         </div>
         ${snippet ? `<div class="snippet">${escapeHtml(snippet)}</div>` : ''}
         <div class="actions">
-          <button class="btn-dl" data-id="${escapeHtml(log.id)}">⬇ 再ダウンロード</button>
+          <button class="btn-dl" data-id="${escapeHtml(log.id)}">⬇ DL</button>
           <button class="btn-del" data-id="${escapeHtml(log.id)}">🗑 削除</button>
         </div>
       </div>
