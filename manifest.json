@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Gemini Chat Logger",
-  "version": "2.4",
+  "version": "2.5",
   "description": "Geminiの会話ログをダウンロード・全文検索",
   "permissions": ["storage", "downloads"],
   "host_permissions": ["https://gemini.google.com/*"],
@@ -22,7 +22,6 @@
     "128": "icon128.png"
   },
   "action": {
-    "default_popup": "popup.html",
     "default_title": "Gemini Chat Logger",
     "default_icon": {
       "16":  "icon16.png",
