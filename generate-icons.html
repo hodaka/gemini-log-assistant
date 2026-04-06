@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Icon Generator</title></head>
+<body>
+<p>ボタンをクリックするとアイコンPNGが3枚ダウンロードされます。</p>
+<button onclick="generateAll()">アイコンを生成してダウンロード</button>
+<canvas id="c" style="display:none"></canvas>
+<script>
+function drawIcon(size) {
+  const c = document.getElementById('c');
+  c.width = c.height = size;
+  const ctx = c.getContext('2d');
+
+  // 背景グラデーション
+  const grad = ctx.createLinearGradient(0, 0, size, size);
+  grad.addColorStop(0, '#1a73e8');
+  grad.addColorStop(1, '#188038');
+  ctx.fillStyle = grad;
+  const r = size * 0.18;
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(size - r, 0);
+  ctx.quadraticCurveTo(size, 0, size, r);
+  ctx.lineTo(size, size - r);
+  ctx.quadraticCurveTo(size, size, size - r, size);
+  ctx.lineTo(r, size);
+  ctx.quadraticCurveTo(0, size, 0, size - r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.fill();
+
+  // 吹き出しアイコン
+  const cx = size / 2, cy = size / 2;
+  const bw = size * 0.55, bh = size * 0.42;
+  const br = size * 0.08;
+  ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  ctx.beginPath();
+  ctx.moveTo(cx - bw/2 + br, cy - bh/2);
+  ctx.lineTo(cx + bw/2 - br, cy - bh/2);
+  ctx.quadraticCurveTo(cx + bw/2, cy - bh/2, cx + bw/2, cy - bh/2 + br);
+  ctx.lineTo(cx + bw/2, cy + bh/2 - br);
+  ctx.quadraticCurveTo(cx + bw/2, cy + bh/2, cx + bw/2 - br, cy + bh/2);
+  ctx.lineTo(cx - bw/2 + size*0.12, cy + bh/2);
+  ctx.lineTo(cx - bw/2, cy + bh/2 + size*0.12);
+  ctx.lineTo(cx - bw/2, cy + bh/2 - br);
+  ctx.quadraticCurveTo(cx - bw/2, cy + bh/2, cx - bw/2 + br, cy + bh/2);
+  ctx.fill();
+
+  // ドット（会話を示す）
+  if (size >= 48) {
+    ctx.fillStyle = '#1a73e8';
+    const dotY = cy - size * 0.02;
+    const gap  = size * 0.11;
+    [-1, 0, 1].forEach(i => {
+      ctx.beginPath();
+      ctx.arc(cx + i * gap, dotY, size * 0.045, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  } else {
+    // 小サイズはシンプルに
+    ctx.fillStyle = '#1a73e8';
+    ctx.beginPath();
+    ctx.arc(cx, cy - size*0.02, size * 0.1, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function download(size) {
+  const c = document.getElementById('c');
+  drawIcon(size);
+  const a = document.createElement('a');
+  a.download = `icon${size}.png`;
+  a.href = c.toDataURL('image/png');
+  a.click();
+}
+
+function generateAll() {
+  [16, 48, 128].forEach((s, i) => setTimeout(() => download(s), i * 300));
+}
+</script>
+</body>
+</html>
