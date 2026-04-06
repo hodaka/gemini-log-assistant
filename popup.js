@@ -1,15 +1,6 @@
-// ポップアップの検索・表示ロジック
+// ポップアップの表示ロジック
 
 let allLogs = [];
-let currentQuery = '';
-
-// ハイライト用: クエリにマッチした部分をmarkタグで囲む
-function highlight(text, query) {
-  if (!query) return escapeHtml(text);
-  const escaped = escapeHtml(text);
-  const escapedQuery = escapeHtml(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return escaped.replace(new RegExp(escapedQuery, 'gi'), m => `<mark>${m}</mark>`);
-}
 
 function escapeHtml(str) {
   return str
@@ -19,35 +10,9 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-// 検索: タイトル・全ターンのテキストを対象
-function filterLogs(logs, query) {
-  if (!query.trim()) return logs;
-  const q = query.toLowerCase();
-  return logs.filter(log => {
-    if (log.title.toLowerCase().includes(q)) return true;
-    return log.turns.some(t => t.content.toLowerCase().includes(q));
-  });
-}
-
-// マッチしたスニペットを抽出
-function getSnippet(log, query) {
-  if (!query.trim()) {
-    const first = log.turns.find(t => t.role === 'model');
-    return first ? first.content.slice(0, 80) + '...' : '';
-  }
-  const q = query.toLowerCase();
-  for (const turn of log.turns) {
-    const idx = turn.content.toLowerCase().indexOf(q);
-    if (idx !== -1) {
-      const start = Math.max(0, idx - 30);
-      const end = Math.min(turn.content.length, idx + query.length + 60);
-      let snippet = turn.content.slice(start, end);
-      if (start > 0) snippet = '...' + snippet;
-      if (end < turn.content.length) snippet += '...';
-      return snippet;
-    }
-  }
-  return '';
+function getSnippet(log) {
+  const first = log.turns.find(t => t.role === 'model');
+  return first ? first.content.slice(0, 80) + (first.content.length > 80 ? '...' : '') : '';
 }
 
 function formatDate(isoStr) {
@@ -59,43 +24,35 @@ function formatDate(isoStr) {
 }
 
 function renderList() {
-  const filtered = filterLogs(allLogs, currentQuery);
   const listEl = document.getElementById('log-list');
   const resultInfo = document.getElementById('result-info');
 
   document.getElementById('total-count').textContent = `${allLogs.length}件`;
+  resultInfo.textContent = `保存済み: ${allLogs.length}件`;
 
-  if (currentQuery) {
-    resultInfo.textContent = `"${currentQuery}" — ${filtered.length}件ヒット`;
-  } else {
-    resultInfo.textContent = `保存済み: ${allLogs.length}件`;
-  }
-
-  if (filtered.length === 0) {
+  if (allLogs.length === 0) {
     listEl.innerHTML = `
       <div class="empty">
-        <div class="icon">${currentQuery ? '🔍' : '📭'}</div>
-        <div>${currentQuery ? '一致する会話が見つかりません' : 'まだ会話が保存されていません'}</div>
-        ${!currentQuery ? '<div style="font-size:12px;margin-top:6px">Geminiのページで「💾 ログを保存」ボタンをクリックしてください</div>' : ''}
+        <div class="icon">📭</div>
+        <div>まだ会話が保存されていません</div>
+        <div style="font-size:12px;margin-top:6px">Geminiのページで「💾 ログを保存」ボタンをクリックしてください</div>
       </div>
     `;
     return;
   }
 
-  listEl.innerHTML = filtered.map(log => {
-    const snippet = getSnippet(log, currentQuery);
-    const highlightedTitle = highlight(log.title, currentQuery);
-    const highlightedSnippet = snippet ? highlight(snippet, currentQuery) : '';
+  listEl.innerHTML = allLogs.map(log => {
+    const snippet = getSnippet(log);
     return `
       <div class="log-item" data-id="${escapeHtml(log.id)}">
-        <div class="title">${highlightedTitle}</div>
+        <div class="title">${escapeHtml(log.title)}</div>
         <div class="meta">
           <span>${formatDate(log.date)}</span>
           <span>${log.turns.length}ターン</span>
         </div>
-        ${highlightedSnippet ? `<div class="snippet">${highlightedSnippet}</div>` : ''}
+        ${snippet ? `<div class="snippet">${escapeHtml(snippet)}</div>` : ''}
         <div class="actions">
-          <button class="btn-dl" data-id="${escapeHtml(log.id)}">⬇ 再ダウンロード</button>
+          <button class="btn-dl" data-id="${escapeHtml(log.id)}">⬇ DL</button>
           <button class="btn-del" data-id="${escapeHtml(log.id)}">🗑 削除</button>
         </div>
       </div>
@@ -135,7 +92,7 @@ function openDetail(id) {
   body.innerHTML = log.turns.map(turn => `
     <div class="turn ${turn.role}">
       <div class="role">${turn.role === 'user' ? 'ユーザー' : 'Gemini'}</div>
-      <div class="content">${highlight(turn.content, currentQuery)}</div>
+      <div class="content">${escapeHtml(turn.content)}</div>
     </div>
   `).join('');
 
@@ -192,12 +149,6 @@ function clearAll() {
 // 初期化
 chrome.storage.local.get({ logs: [] }, data => {
   allLogs = data.logs;
-  renderList();
-});
-
-// 検索入力
-document.getElementById('search-input').addEventListener('input', e => {
-  currentQuery = e.target.value;
   renderList();
 });
 

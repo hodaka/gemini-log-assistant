@@ -4,7 +4,7 @@ const BUTTON_ID      = 'gemini-logger-btn';
 const ZIP_BUTTON_ID  = 'gemini-logger-zip-btn';
 const SEARCH_BTN_ID  = 'gemini-logger-search-btn';
 const PANEL_ID       = 'gemini-logger-panel';
-const VERSION        = 'v2.3';
+const VERSION        = 'v2.4';
 
 // ── Shift-JISエンコーダ ───────────────────────────────────────────────────
 // TextDecoder('shift-jis')を逆引きして変換マップを構築する。
@@ -405,16 +405,89 @@ function renderPanel(logs, q) {
   list.innerHTML = filtered.map(log => {
     const snippet = getSnippet(log, q);
     const d = new Date(log.date);
-    const dateStr = d.toLocaleString('ja-JP', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+    const dateStr = d.toLocaleString('ja-JP', { year: '2-digit', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
     return `<div class="gcl-item" data-id="${escHtml(log.id)}">
       <div class="gcl-item-title">${highlight(log.title, q)}</div>
       <div class="gcl-item-meta">${dateStr} · ${log.turns.length}ターン</div>
       ${snippet ? `<div class="gcl-item-snippet">${highlight(snippet, q)}</div>` : ''}
+      <div class="gcl-item-actions">
+        <button class="gcl-btn-show" data-id="${escHtml(log.id)}">表示</button>
+        <button class="gcl-btn-goto" data-url="${escHtml(log.url)}">このチャットへ</button>
+        <button class="gcl-btn-open" data-url="${escHtml(log.url)}">(新タブ)このチャットへ</button>
+        <div class="gcl-actions-break"></div>
+        <button class="gcl-btn-dl" data-id="${escHtml(log.id)}">⬇ DL</button>
+        <button class="gcl-btn-del" data-id="${escHtml(log.id)}">🗑 削除</button>
+      </div>
     </div>`;
   }).join('');
 
   list.querySelectorAll('.gcl-item').forEach(el => {
-    el.addEventListener('click', () => openDetail(el.dataset.id, logs, q));
+    el.addEventListener('click', e => {
+      if (e.target.closest('.gcl-item-actions')) return;
+      openDetail(el.dataset.id, logs, q);
+    });
+  });
+
+  list.querySelectorAll('.gcl-btn-show').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      openDetail(btn.dataset.id, logs, q);
+    });
+  });
+
+  list.querySelectorAll('.gcl-btn-goto').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      location.href = btn.dataset.url;
+    });
+  });
+
+  list.querySelectorAll('.gcl-btn-open').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      window.open(btn.dataset.url, '_blank');
+    });
+  });
+
+  list.querySelectorAll('.gcl-btn-dl').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const log = logs.find(l => l.id === btn.dataset.id);
+      if (!log) return;
+      const text = formatAsText(log.turns, log.url, log.date);
+      sendDownloadText(text, `gemini_${toDatetimeStr(log.date)}_${safeFilename(log.title)}.txt`);
+    });
+  });
+
+  list.querySelectorAll('.gcl-btn-del').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      const actions = btn.closest('.gcl-item-actions');
+      if (actions.classList.contains('gcl-confirming')) return;
+
+      actions.classList.add('gcl-confirming');
+      actions.innerHTML = `
+        <span class="gcl-confirm-label">削除しますか？</span>
+        <button class="gcl-btn-cancel">キャンセル</button>
+        <button class="gcl-btn-ok" data-id="${id}">OK</button>
+      `;
+
+      actions.querySelector('.gcl-btn-ok').addEventListener('click', e => {
+        e.stopPropagation();
+        const okBtn = e.currentTarget;
+        if (okBtn.disabled) return;
+        okBtn.disabled = true;
+        chrome.storage.local.get({ logs: [] }, data => {
+          chrome.storage.local.set({ logs: data.logs.filter(l => l.id !== id) });
+        });
+      });
+
+      actions.querySelector('.gcl-btn-cancel').addEventListener('click', e => {
+        e.stopPropagation();
+        renderPanel(logs, q);
+      });
+    });
   });
 }
 
