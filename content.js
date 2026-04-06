@@ -4,7 +4,7 @@ const BUTTON_ID      = 'gemini-logger-btn';
 const ZIP_BUTTON_ID  = 'gemini-logger-zip-btn';
 const SEARCH_BTN_ID  = 'gemini-logger-search-btn';
 const PANEL_ID       = 'gemini-logger-panel';
-const VERSION        = 'v2.5';
+const VERSION        = 'v2.6';
 
 // ── Shift-JISエンコーダ ───────────────────────────────────────────────────
 // TextDecoder('shift-jis')を逆引きして変換マップを構築する。
@@ -293,7 +293,7 @@ function handleSaveClick() {
   if (!turns.length) {
     setLabel(btn, '❌', '見つかりません');
     btn.classList.add('error');
-    setTimeout(() => { btn.disabled = false; setLabel(btn, '💾', 'ログを保存'); btn.classList.remove('error'); }, 2000);
+    setTimeout(() => { btn.disabled = false; setLabel(btn, '💾➜📄', 'ログを保存'); btn.classList.remove('error'); }, 2000);
     return;
   }
 
@@ -308,7 +308,7 @@ function handleSaveClick() {
 
   setLabel(btn, '✅', `${turns.length}件保存`);
   btn.classList.add('success');
-  setTimeout(() => { btn.disabled = false; setLabel(btn, '💾', 'ログを保存'); btn.classList.remove('success'); }, 2000);
+  setTimeout(() => { btn.disabled = false; setLabel(btn, '💾➜📄', 'ログを保存'); btn.classList.remove('success'); }, 2000);
 }
 
 // ── 📦 全ログをZIP（ストレージの全ログをまとめる） ────────────────────────
@@ -334,9 +334,9 @@ async function handleZipClick() {
     }
 
     if (!logs.length) {
-      setLabel(btn, '📦', 'ログがありません');
+      setLabel(btn, '💾➜📦', 'ログがありません');
       btn.classList.add('error');
-      setTimeout(() => { btn.disabled = false; setLabel(btn, '📦', '全ログをZIP'); btn.classList.remove('error'); }, 2000);
+      setTimeout(() => { btn.disabled = false; setLabel(btn, '💾➜📦', '全ログをZIP'); btn.classList.remove('error'); }, 2000);
       return;
     }
 
@@ -357,7 +357,7 @@ async function handleZipClick() {
 
     setLabel(btn, '✅', `${logs.length}件をZIP`);
     btn.classList.add('success');
-    setTimeout(() => { btn.disabled = false; setLabel(btn, '📦', '全ログをZIP'); btn.classList.remove('success'); }, 2000);
+    setTimeout(() => { btn.disabled = false; setLabel(btn, '💾➜📦', '全ログをZIP'); btn.classList.remove('success'); }, 2000);
   });
 }
 
@@ -617,10 +617,10 @@ function injectButtons() {
     makeButton(SEARCH_BTN_ID, '🔍', 'ログ検索', toggleSearchPanel);
   }
   if (!document.getElementById(BUTTON_ID)) {
-    makeButton(BUTTON_ID, '💾', 'ログを保存', handleSaveClick);
+    makeButton(BUTTON_ID, '💾➜📄', 'ログを保存', handleSaveClick);
   }
   if (!document.getElementById(ZIP_BUTTON_ID)) {
-    makeButton(ZIP_BUTTON_ID, '📦', '全ログをZIP', handleZipClick);
+    makeButton(ZIP_BUTTON_ID, '💾➜📦', '全ログをZIP', handleZipClick);
   }
   if (!document.getElementById('gemini-logger-version')) {
     const ver = document.createElement('div');
