@@ -411,7 +411,11 @@ function renderPanel(logs, q) {
       <div class="gcl-item-meta">${dateStr} · ${log.turns.length}ターン</div>
       ${snippet ? `<div class="gcl-item-snippet">${highlight(snippet, q)}</div>` : ''}
       <div class="gcl-item-actions">
-        <button class="gcl-btn-dl" data-id="${escHtml(log.id)}">⬇ 再DL</button>
+        <button class="gcl-btn-show" data-id="${escHtml(log.id)}">表示</button>
+        <button class="gcl-btn-goto" data-url="${escHtml(log.url)}">このチャットへ</button>
+        <button class="gcl-btn-open" data-url="${escHtml(log.url)}">(新タブ)このチャットへ</button>
+        <div class="gcl-actions-break"></div>
+        <button class="gcl-btn-dl" data-id="${escHtml(log.id)}">⬇ DL</button>
         <button class="gcl-btn-del" data-id="${escHtml(log.id)}">🗑 削除</button>
       </div>
     </div>`;
@@ -421,6 +425,27 @@ function renderPanel(logs, q) {
     el.addEventListener('click', e => {
       if (e.target.closest('.gcl-item-actions')) return;
       openDetail(el.dataset.id, logs, q);
+    });
+  });
+
+  list.querySelectorAll('.gcl-btn-show').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      openDetail(btn.dataset.id, logs, q);
+    });
+  });
+
+  list.querySelectorAll('.gcl-btn-goto').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      location.href = btn.dataset.url;
+    });
+  });
+
+  list.querySelectorAll('.gcl-btn-open').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      window.open(btn.dataset.url, '_blank');
     });
   });
 
@@ -438,8 +463,29 @@ function renderPanel(logs, q) {
     btn.addEventListener('click', e => {
       e.stopPropagation();
       const id = btn.dataset.id;
-      chrome.storage.local.get({ logs: [] }, data => {
-        chrome.storage.local.set({ logs: data.logs.filter(l => l.id !== id) });
+      const actions = btn.closest('.gcl-item-actions');
+      if (actions.classList.contains('gcl-confirming')) return;
+
+      actions.classList.add('gcl-confirming');
+      actions.innerHTML = `
+        <span class="gcl-confirm-label">削除しますか？</span>
+        <button class="gcl-btn-cancel">キャンセル</button>
+        <button class="gcl-btn-ok" data-id="${id}">OK</button>
+      `;
+
+      actions.querySelector('.gcl-btn-ok').addEventListener('click', e => {
+        e.stopPropagation();
+        const okBtn = e.currentTarget;
+        if (okBtn.disabled) return;
+        okBtn.disabled = true;
+        chrome.storage.local.get({ logs: [] }, data => {
+          chrome.storage.local.set({ logs: data.logs.filter(l => l.id !== id) });
+        });
+      });
+
+      actions.querySelector('.gcl-btn-cancel').addEventListener('click', e => {
+        e.stopPropagation();
+        renderPanel(logs, q);
       });
     });
   });
