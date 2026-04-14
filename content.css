@@ -16,8 +16,9 @@
   align-items: center;
   white-space: nowrap;
   overflow: hidden;
-  transition: padding 0.2s ease, background 0.2s, transform 0.1s, box-shadow 0.2s;
+  transition: padding 0.2s ease, background 0.2s, transform 0.1s, box-shadow 0.2s, opacity 0.2s;
   user-select: none;
+  opacity: 0.85;
 }
 
 #gemini-logger-search-btn { top: 120px; background: #7986cb; }
@@ -40,9 +41,9 @@
   margin-left: 6px;
 }
 
-#gemini-logger-search-btn:hover { background: #5c6bc0; box-shadow: 0 3px 10px rgba(0,0,0,0.35); }
-#gemini-logger-btn:hover        { background: #1557b0; box-shadow: 0 3px 10px rgba(0,0,0,0.35); }
-#gemini-logger-zip-btn:hover    { background: #0d652d; box-shadow: 0 3px 10px rgba(0,0,0,0.35); }
+#gemini-logger-search-btn:hover { background: #5c6bc0; box-shadow: 0 3px 10px rgba(0,0,0,0.35); opacity: 1; }
+#gemini-logger-btn:hover        { background: #1557b0; box-shadow: 0 3px 10px rgba(0,0,0,0.35); opacity: 1; }
+#gemini-logger-zip-btn:hover    { background: #0d652d; box-shadow: 0 3px 10px rgba(0,0,0,0.35); opacity: 1; }
 
 #gemini-logger-search-btn:active,
 #gemini-logger-btn:active,
@@ -71,7 +72,7 @@
 #gemini-logger-panel {
   position: fixed;
   top: 80px;
-  right: 110px;
+  right: 135px;
   width: 360px;
   max-height: 80vh;
   z-index: 99998;
