@@ -4,7 +4,7 @@ const BUTTON_ID      = 'gemini-logger-btn';
 const ZIP_BUTTON_ID  = 'gemini-logger-zip-btn';
 const SEARCH_BTN_ID  = 'gemini-logger-search-btn';
 const PANEL_ID       = 'gemini-logger-panel';
-const VERSION        = 'v2.7';
+const VERSION        = 'v2.8';
 
 // ── Shift-JISエンコーダ ───────────────────────────────────────────────────
 // TextDecoder('shift-jis')を逆引きして変換マップを構築する。
@@ -479,7 +479,11 @@ function renderPanel(logs, q) {
         if (okBtn.disabled) return;
         okBtn.disabled = true;
         chrome.storage.local.get({ logs: [] }, data => {
+          const target = data.logs.find(l => l.id === id);
           chrome.storage.local.set({ logs: data.logs.filter(l => l.id !== id) });
+          if (target && target.url === location.href) {
+            location.href = 'https://gemini.google.com/';
+          }
         });
       });
 
