@@ -1,0 +1,36 @@
+{
+  "ext_description":          { "message": "Download and search your Gemini chat logs" },
+
+  "btn_save":                 { "message": "Save Log" },
+  "btn_zip":                  { "message": "Export ZIP" },
+  "btn_search":               { "message": "Search Logs" },
+
+  "state_loading":            { "message": "Loading..." },
+  "state_generating":         { "message": "Generating..." },
+  "state_no_logs":            { "message": "No logs found" },
+  "state_saved":              { "message": "Saved $COUNT$", "placeholders": { "count": { "content": "$1" } } },
+  "state_zipped":             { "message": "Exported $COUNT$", "placeholders": { "count": { "content": "$1" } } },
+
+  "panel_header":             { "message": "🔍 Search Logs" },
+  "panel_search_placeholder": { "message": "Full-text search..." },
+  "panel_info_all":           { "message": "Saved: $COUNT$", "placeholders": { "count": { "content": "$1" } } },
+  "panel_info_search":        { "message": "\"$QUERY$\" — $COUNT$ results", "placeholders": { "query": { "content": "$1" }, "count": { "content": "$2" } } },
+  "panel_no_match":           { "message": "No matches" },
+  "panel_no_logs":            { "message": "No logs" },
+  "panel_turns":              { "message": "$COUNT$ turns", "placeholders": { "count": { "content": "$1" } } },
+  "panel_btn_show":           { "message": "View" },
+  "panel_btn_goto":           { "message": "Go to chat" },
+  "panel_btn_open":           { "message": "Open in new tab" },
+  "panel_btn_dl":             { "message": "⬇ DL" },
+  "panel_btn_del":            { "message": "🗑 Delete" },
+  "panel_confirm_delete":     { "message": "Delete this log?" },
+  "panel_btn_cancel":         { "message": "Cancel" },
+  "panel_btn_back":           { "message": "← Back to list" },
+  "panel_role_user":          { "message": "User" },
+
+  "log_header":               { "message": "=== Gemini Chat Log ===" },
+  "log_saved_at":             { "message": "Saved: $DATE$", "placeholders": { "date": { "content": "$1" } } },
+  "log_role_user":            { "message": "[User]" },
+  "log_role_model":           { "message": "[Gemini]" },
+  "log_untitled":             { "message": "Untitled Chat" }
+}
