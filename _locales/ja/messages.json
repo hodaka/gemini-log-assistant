@@ -1,0 +1,36 @@
+{
+  "ext_description":          { "message": "Geminiの会話ログをダウンロード・全文検索" },
+
+  "btn_save":                 { "message": "ログを保存" },
+  "btn_zip":                  { "message": "全ログをZIP" },
+  "btn_search":               { "message": "ログ検索" },
+
+  "state_loading":            { "message": "取得中..." },
+  "state_generating":         { "message": "生成中..." },
+  "state_no_logs":            { "message": "ログがありません" },
+  "state_saved":              { "message": "$COUNT$件保存", "placeholders": { "count": { "content": "$1" } } },
+  "state_zipped":             { "message": "$COUNT$件をZIP", "placeholders": { "count": { "content": "$1" } } },
+
+  "panel_header":             { "message": "🔍 ログ検索" },
+  "panel_search_placeholder": { "message": "全文検索..." },
+  "panel_info_all":           { "message": "保存済み: $COUNT$件", "placeholders": { "count": { "content": "$1" } } },
+  "panel_info_search":        { "message": "\"$QUERY$\" — $COUNT$件", "placeholders": { "query": { "content": "$1" }, "count": { "content": "$2" } } },
+  "panel_no_match":           { "message": "一致なし" },
+  "panel_no_logs":            { "message": "ログなし" },
+  "panel_turns":              { "message": "$COUNT$ターン", "placeholders": { "count": { "content": "$1" } } },
+  "panel_btn_show":           { "message": "表示" },
+  "panel_btn_goto":           { "message": "このチャットへ" },
+  "panel_btn_open":           { "message": "(新タブ)このチャットへ" },
+  "panel_btn_dl":             { "message": "⬇ DL" },
+  "panel_btn_del":            { "message": "🗑 削除" },
+  "panel_confirm_delete":     { "message": "削除しますか？" },
+  "panel_btn_cancel":         { "message": "キャンセル" },
+  "panel_btn_back":           { "message": "← 一覧に戻る" },
+  "panel_role_user":          { "message": "ユーザー" },
+
+  "log_header":               { "message": "=== Gemini 会話ログ ===" },
+  "log_saved_at":             { "message": "保存日時: $DATE$", "placeholders": { "date": { "content": "$1" } } },
+  "log_role_user":            { "message": "[ユーザー]" },
+  "log_role_model":           { "message": "[Gemini]" },
+  "log_untitled":             { "message": "無題の会話" }
+}
