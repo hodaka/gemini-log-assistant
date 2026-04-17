@@ -4,7 +4,7 @@ const BUTTON_ID      = 'gemini-logger-btn';
 const ZIP_BUTTON_ID  = 'gemini-logger-zip-btn';
 const SEARCH_BTN_ID  = 'gemini-logger-search-btn';
 const PANEL_ID       = 'gemini-logger-panel';
-const VERSION        = 'v2.9';
+const VERSION        = 'v3.0T1';
 
 // ── Shift-JISエンコーダ ───────────────────────────────────────────────────
 // TextDecoder('shift-jis')を逆引きして変換マップを構築する。
@@ -190,12 +190,12 @@ function scrapeConversation() {
 
 function formatAsText(turns, url, savedDate) {
   const lines = [
-    '=== Gemini 会話ログ ===',
-    `保存日時: ${new Date(savedDate).toLocaleString('ja-JP')}`,
+    chrome.i18n.getMessage('log_header'),
+    chrome.i18n.getMessage('log_saved_at', [new Date(savedDate).toLocaleString()]),
     `URL: ${url}`, '', '---', ''
   ];
   turns.forEach(t => {
-    lines.push(t.role === 'user' ? '[ユーザー]' : '[Gemini]');
+    lines.push(t.role === 'user' ? chrome.i18n.getMessage('log_role_user') : chrome.i18n.getMessage('log_role_model'));
     lines.push(t.content, '', '---', '');
   });
   return lines.join('\n');
@@ -214,7 +214,7 @@ function safeFilename(title) {
 function getChatTitle() {
   return document.querySelector('[data-test-id="conversation-title"]')?.innerText.trim()
       || document.title.replace(/\s*[|\-–]\s*.*$/i, '').trim()
-      || '無題の会話';
+      || chrome.i18n.getMessage('log_untitled');
 }
 
 function makeEntry(turns, url) {
@@ -287,13 +287,13 @@ function handleSaveClick() {
   const btn = document.getElementById(BUTTON_ID);
   if (!btn) return;
   btn.disabled = true;
-  setLabel(btn, '⏳', '取得中...');
+  setLabel(btn, '⏳', chrome.i18n.getMessage('state_loading'));
 
   const turns = scrapeConversation();
   if (!turns.length) {
-    setLabel(btn, '❌', 'ログがありません');
+    setLabel(btn, '❌', chrome.i18n.getMessage('state_no_logs'));
     btn.classList.add('error');
-    setTimeout(() => { btn.disabled = false; setLabel(btn, '💾➜📄', 'ログを保存'); btn.classList.remove('error'); }, 2000);
+    setTimeout(() => { btn.disabled = false; setLabel(btn, '💾➜📄', chrome.i18n.getMessage('btn_save')); btn.classList.remove('error'); }, 2000);
     return;
   }
 
@@ -306,9 +306,9 @@ function handleSaveClick() {
   const text = formatAsText(entry.turns, entry.url, entry.date);
   sendDownloadText(text, `gemini_${toDatetimeStr(entry.date)}_${safeFilename(entry.title)}.txt`);
 
-  setLabel(btn, '✅', `${turns.length}件保存`);
+  setLabel(btn, '✅', chrome.i18n.getMessage('state_saved', [String(turns.length)]));
   btn.classList.add('success');
-  setTimeout(() => { btn.disabled = false; setLabel(btn, '💾➜📄', 'ログを保存'); btn.classList.remove('success'); }, 2000);
+  setTimeout(() => { btn.disabled = false; setLabel(btn, '💾➜📄', chrome.i18n.getMessage('btn_save')); btn.classList.remove('success'); }, 2000);
 }
 
 // ── 📦 全ログをZIP（ストレージの全ログをまとめる） ────────────────────────
@@ -317,7 +317,7 @@ async function handleZipClick() {
   const btn = document.getElementById(ZIP_BUTTON_ID);
   if (!btn) return;
   btn.disabled = true;
-  setLabel(btn, '⏳', '生成中...');
+  setLabel(btn, '⏳', chrome.i18n.getMessage('state_generating'));
 
   // 現在のチャットを最新スクレイプで上書き保存してからZIP化
   // （古いバージョンで文字化けした状態でストレージに入っていた場合の対策）
@@ -334,9 +334,9 @@ async function handleZipClick() {
     }
 
     if (!logs.length) {
-      setLabel(btn, '💾➜📦', 'ログがありません');
+      setLabel(btn, '💾➜📦', chrome.i18n.getMessage('state_no_logs'));
       btn.classList.add('error');
-      setTimeout(() => { btn.disabled = false; setLabel(btn, '💾➜📦', '全ログをZIP'); btn.classList.remove('error'); }, 2000);
+      setTimeout(() => { btn.disabled = false; setLabel(btn, '💾➜📦', chrome.i18n.getMessage('btn_zip')); btn.classList.remove('error'); }, 2000);
       return;
     }
 
@@ -355,9 +355,9 @@ async function handleZipClick() {
     const zipBytes = createZip(files);
     sendDownloadZip(zipBytes, `gemini_logs_${toDatetimeStr(new Date().toISOString())}.zip`);
 
-    setLabel(btn, '✅', `${logs.length}件をZIP`);
+    setLabel(btn, '✅', chrome.i18n.getMessage('state_zipped', [String(logs.length)]));
     btn.classList.add('success');
-    setTimeout(() => { btn.disabled = false; setLabel(btn, '💾➜📦', '全ログをZIP'); btn.classList.remove('success'); }, 2000);
+    setTimeout(() => { btn.disabled = false; setLabel(btn, '💾➜📦', chrome.i18n.getMessage('btn_zip')); btn.classList.remove('success'); }, 2000);
   });
 }
 
@@ -395,28 +395,30 @@ function renderPanel(logs, q) {
         l.turns.some(t => t.content.toLowerCase().includes(q.toLowerCase())))
     : logs;
 
-  info.textContent = q ? `"${q}" — ${filtered.length}件` : `保存済み: ${logs.length}件`;
+  info.textContent = q
+    ? chrome.i18n.getMessage('panel_info_search', [q, String(filtered.length)])
+    : chrome.i18n.getMessage('panel_info_all', [String(logs.length)]);
 
   if (!filtered.length) {
-    list.innerHTML = `<div class="gcl-empty">${q ? '一致なし' : 'ログなし'}</div>`;
+    list.innerHTML = `<div class="gcl-empty">${escHtml(q ? chrome.i18n.getMessage('panel_no_match') : chrome.i18n.getMessage('panel_no_logs'))}</div>`;
     return;
   }
 
   list.innerHTML = filtered.map(log => {
     const snippet = getSnippet(log, q);
     const d = new Date(log.date);
-    const dateStr = d.toLocaleString('ja-JP', { year: '2-digit', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+    const dateStr = d.toLocaleString(undefined, { year: '2-digit', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
     return `<div class="gcl-item" data-id="${escHtml(log.id)}">
       <div class="gcl-item-title">${highlight(log.title, q)}</div>
-      <div class="gcl-item-meta">${dateStr} · ${log.turns.length}ターン</div>
+      <div class="gcl-item-meta">${dateStr} · ${escHtml(chrome.i18n.getMessage('panel_turns', [String(log.turns.length)]))}</div>
       ${snippet ? `<div class="gcl-item-snippet">${highlight(snippet, q)}</div>` : ''}
       <div class="gcl-item-actions">
-        <button class="gcl-btn-show" data-id="${escHtml(log.id)}">表示</button>
-        <button class="gcl-btn-goto" data-url="${escHtml(log.url)}">このチャットへ</button>
-        <button class="gcl-btn-open" data-url="${escHtml(log.url)}">(新タブ)このチャットへ</button>
+        <button class="gcl-btn-show" data-id="${escHtml(log.id)}">${escHtml(chrome.i18n.getMessage('panel_btn_show'))}</button>
+        <button class="gcl-btn-goto" data-url="${escHtml(log.url)}">${escHtml(chrome.i18n.getMessage('panel_btn_goto'))}</button>
+        <button class="gcl-btn-open" data-url="${escHtml(log.url)}">${escHtml(chrome.i18n.getMessage('panel_btn_open'))}</button>
         <div class="gcl-actions-break"></div>
-        <button class="gcl-btn-dl" data-id="${escHtml(log.id)}">⬇ DL</button>
-        <button class="gcl-btn-del" data-id="${escHtml(log.id)}">🗑 削除</button>
+        <button class="gcl-btn-dl" data-id="${escHtml(log.id)}">${escHtml(chrome.i18n.getMessage('panel_btn_dl'))}</button>
+        <button class="gcl-btn-del" data-id="${escHtml(log.id)}">${escHtml(chrome.i18n.getMessage('panel_btn_del'))}</button>
       </div>
     </div>`;
   }).join('');
@@ -468,8 +470,8 @@ function renderPanel(logs, q) {
 
       actions.classList.add('gcl-confirming');
       actions.innerHTML = `
-        <span class="gcl-confirm-label">削除しますか？</span>
-        <button class="gcl-btn-cancel">キャンセル</button>
+        <span class="gcl-confirm-label">${escHtml(chrome.i18n.getMessage('panel_confirm_delete'))}</span>
+        <button class="gcl-btn-cancel">${escHtml(chrome.i18n.getMessage('panel_btn_cancel'))}</button>
         <button class="gcl-btn-ok" data-id="${id}">OK</button>
       `;
 
@@ -507,7 +509,7 @@ function openDetail(id, logs, q) {
   dtitle.textContent = log.title;
   dbody.innerHTML = log.turns.map(t => `
     <div class="gcl-turn gcl-turn-${t.role}">
-      <div class="gcl-turn-role">${t.role === 'user' ? 'ユーザー' : 'Gemini'}</div>
+      <div class="gcl-turn-role">${t.role === 'user' ? escHtml(chrome.i18n.getMessage('panel_role_user')) : 'Gemini'}</div>
       <div class="gcl-turn-content">${highlight(t.content, q)}</div>
     </div>`).join('');
 
@@ -524,14 +526,14 @@ function createSearchPanel() {
   panel.id = PANEL_ID;
   panel.innerHTML = `
     <div id="gcl-header">
-      <span>🔍 ログ検索</span>
+      <span>${escHtml(chrome.i18n.getMessage('panel_header'))}</span>
       <button id="gcl-close">✕</button>
     </div>
     <div id="gcl-search-row">
-      <input id="gcl-input" type="text" placeholder="全文検索..." autocomplete="off">
+      <input id="gcl-input" type="text" placeholder="${escHtml(chrome.i18n.getMessage('panel_search_placeholder'))}" autocomplete="off">
     </div>
     <div id="gcl-info"></div>
-    <button id="gcl-back" style="display:none">← 一覧に戻る</button>
+    <button id="gcl-back" style="display:none">${escHtml(chrome.i18n.getMessage('panel_btn_back'))}</button>
     <div id="gcl-list-view">
       <div id="gcl-list"></div>
     </div>
@@ -618,13 +620,13 @@ function makeButton(id, icon, label, handler) {
 
 function injectButtons() {
   if (!document.getElementById(SEARCH_BTN_ID)) {
-    makeButton(SEARCH_BTN_ID, '🔍', 'ログ検索', toggleSearchPanel);
+    makeButton(SEARCH_BTN_ID, '🔍', chrome.i18n.getMessage('btn_search'), toggleSearchPanel);
   }
   if (!document.getElementById(BUTTON_ID)) {
-    makeButton(BUTTON_ID, '💾➜📄', 'ログを保存', handleSaveClick);
+    makeButton(BUTTON_ID, '💾➜📄', chrome.i18n.getMessage('btn_save'), handleSaveClick);
   }
   if (!document.getElementById(ZIP_BUTTON_ID)) {
-    makeButton(ZIP_BUTTON_ID, '💾➜📦', '全ログをZIP', handleZipClick);
+    makeButton(ZIP_BUTTON_ID, '💾➜📦', chrome.i18n.getMessage('btn_zip'), handleZipClick);
   }
   if (!document.getElementById('gemini-logger-version')) {
     const ver = document.createElement('div');
