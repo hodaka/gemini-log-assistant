@@ -4,7 +4,7 @@ const BUTTON_ID      = 'gemini-logger-btn';
 const ZIP_BUTTON_ID  = 'gemini-logger-zip-btn';
 const SEARCH_BTN_ID  = 'gemini-logger-search-btn';
 const PANEL_ID       = 'gemini-logger-panel';
-const VERSION        = 'v2.9T1';
+const VERSION        = 'v2.9';
 
 // ── Shift-JISエンコーダ ───────────────────────────────────────────────────
 // TextDecoder('shift-jis')を逆引きして変換マップを構築する。
