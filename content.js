@@ -4,7 +4,7 @@ const BUTTON_ID      = 'gemini-logger-btn';
 const ZIP_BUTTON_ID  = 'gemini-logger-zip-btn';
 const SEARCH_BTN_ID  = 'gemini-logger-search-btn';
 const PANEL_ID       = 'gemini-logger-panel';
-const VERSION        = 'v2.8';
+const VERSION        = 'v2.9';
 
 // ── Shift-JISエンコーダ ───────────────────────────────────────────────────
 // TextDecoder('shift-jis')を逆引きして変換マップを構築する。
@@ -291,7 +291,7 @@ function handleSaveClick() {
 
   const turns = scrapeConversation();
   if (!turns.length) {
-    setLabel(btn, '❌', '見つかりません');
+    setLabel(btn, '❌', 'ログがありません');
     btn.classList.add('error');
     setTimeout(() => { btn.disabled = false; setLabel(btn, '💾➜📄', 'ログを保存'); btn.classList.remove('error'); }, 2000);
     return;
