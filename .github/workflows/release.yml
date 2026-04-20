@@ -22,7 +22,9 @@ jobs:
             background.js \
             icon16.png \
             icon48.png \
-            icon128.png
+            icon128.png \
+            _locales/en/messages.json \
+            _locales/ja/messages.json
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
