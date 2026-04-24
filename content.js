@@ -128,8 +128,6 @@ function createZip(files) {
 }
 
 // ── ダウンロード ──────────────────────────────────────────────────────────
-// content script内で <a download> を使って直接ダウンロードする。
-// background.js経由だとMV3 service workerの制限で文字化けが起きるため。
 
 function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
