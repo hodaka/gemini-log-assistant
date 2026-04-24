@@ -1,14 +1,11 @@
 {
   "manifest_version": 3,
   "name": "Gemini Chat Logger",
-  "version": "3.1",
+  "version": "3.2",
   "default_locale": "en",
   "description": "__MSG_ext_description__",
   "permissions": ["storage", "downloads"],
   "host_permissions": ["https://gemini.google.com/*"],
-  "background": {
-    "service_worker": "background.js"
-  },
   "content_scripts": [
     {
       "matches": ["https://gemini.google.com/*"],
