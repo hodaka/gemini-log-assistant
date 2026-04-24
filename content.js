@@ -4,7 +4,7 @@ const BUTTON_ID      = 'gemini-logger-btn';
 const ZIP_BUTTON_ID  = 'gemini-logger-zip-btn';
 const SEARCH_BTN_ID  = 'gemini-logger-search-btn';
 const PANEL_ID       = 'gemini-logger-panel';
-const VERSION        = 'v3.1';
+const VERSION        = 'v3.3';
 
 // ── Shift-JISエンコーダ ───────────────────────────────────────────────────
 // TextDecoder('shift-jis')を逆引きして変換マップを構築する。
@@ -295,18 +295,22 @@ function handleSaveClick() {
     return;
   }
 
-  const entry = makeEntry(turns, location.href);
   chrome.storage.local.get({ logs: [] }, data => {
-    const logs = [entry, ...data.logs.filter(l => l.url !== location.href)].slice(0, 200);
-    chrome.storage.local.set({ logs });
+    const logs     = data.logs;
+    const existing = logs.find(l => l.url === location.href);
+    const merged   = mergeWithExisting(existing?.turns, turns);
+    const entry    = makeEntry(merged, location.href);
+    if (existing) entry.id = existing.id;
+    const updated  = [entry, ...logs.filter(l => l.url !== location.href)].slice(0, 200);
+    chrome.storage.local.set({ logs: updated });
+
+    const text = formatAsText(entry.turns, entry.url, entry.date);
+    sendDownloadText(text, `gemini_${toDatetimeStr(entry.date)}_${safeFilename(entry.title)}.txt`);
+
+    setLabel(btn, '✅', chrome.i18n.getMessage('state_saved', [String(merged.length)]));
+    btn.classList.add('success');
+    setTimeout(() => { btn.disabled = false; setLabel(btn, '💾➜📄', chrome.i18n.getMessage('btn_save')); btn.classList.remove('success'); }, 2000);
   });
-
-  const text = formatAsText(entry.turns, entry.url, entry.date);
-  sendDownloadText(text, `gemini_${toDatetimeStr(entry.date)}_${safeFilename(entry.title)}.txt`);
-
-  setLabel(btn, '✅', chrome.i18n.getMessage('state_saved', [String(turns.length)]));
-  btn.classList.add('success');
-  setTimeout(() => { btn.disabled = false; setLabel(btn, '💾➜📄', chrome.i18n.getMessage('btn_save')); btn.classList.remove('success'); }, 2000);
 }
 
 // ── 📦 全ログをZIP（ストレージの全ログをまとめる） ────────────────────────
