@@ -65,7 +65,6 @@ Geminiの会話ログを保存・検索・ZIP一括エクスポートできるCh
 | 権限 | 用途 |
 |------|------|
 | `storage` | 会話ログをブラウザにローカル保存するため |
-| `downloads` | テキスト・ZIPファイルをダウンロードするため |
 | `host_permissions: gemini.google.com` | Geminiのページにボタンを表示し会話を読み取るため |
 
 ---
@@ -103,12 +102,15 @@ Stored data is used solely for:
 | Permission | Purpose |
 |------------|---------|
 | `storage` | To save conversation logs locally in the browser |
-| `downloads` | To download text and ZIP files |
 | `host_permissions: gemini.google.com` | To display buttons on Gemini and read conversation content |
 
 ---
+### V3.4
+- 未使用の権限（downloads）を、Chrome Web Store ポリシー対応として削除
 
-## 更新履歴
+### V3.3
+- 手動保存（💾➜📄）で仮想化ターンが消えるバグを修正 (#30)
+- background.jsの死にコードを削除 (#29)
 
 ### v3.1
 - Chrome Web Store申請時のエラー修正（リリースZIPに`_locales/`が含まれていなかった問題を修正）
